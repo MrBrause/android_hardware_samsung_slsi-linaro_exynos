@@ -103,6 +103,15 @@ void initExynosThermalHal(void) {
 		else if (zoneName == "NPU") {
 			tempType = TemperatureType::NPU;
 		}
+		else if (zoneName.compare(0, 10, "therm_zone") == 0) {
+			// Exynos 8890 (herolte) TMU zones are named therm_zone0..N.
+			// therm_zone3 exposes only 4 trip points; the HAL pads the rest
+			// with 0.0, which the severity calc misreads as a permanent high
+			// status. It's a redundant die sensor (tracks the others), so skip it.
+			if (zoneName == "therm_zone3")
+				continue;
+			tempType = TemperatureType::CPU;
+		}
 		else {
 			continue;
 		}
